@@ -17,11 +17,11 @@ for files in os.listdir(path):
         for example in tf.python_io.tf_record_iterator(path + files):
             result = tf.train.Example.FromString(example)
             dic = {}
-            dic["video_id"] = result.features.feature["video_id"].value.byte_list.value[0]
+            dic["video_id"] = result.features.feature["video_id"].byte_list.value[0]
             lst = []
-            for i in range(len(result.features.feature["video_id"].value.int64_list.value)):
+            for i in range(len(result.features.feature["video_id"].int64_list.value)):
                 lst.append(
-                    int(result.features.feature["video_id"].value.int64_list.value[i]))
+                    int(result.features.feature["video_id"].int64_list.value[i]))
             dic["labels"] = lst
             featurelist.append(dic)
 dict_name = "records.csv"
