@@ -19,5 +19,8 @@ for files in os.listdir(path):
             featurelist.append(result)
 dict_name = "records.json"
 
-with open(dict_name, 'w') as outfile:
-    json.dump(featurelist, outfile)
+thefile = open(dict_name, 'w')
+# with open(dict_name, 'w') as outfile:
+#     json.dump(featurelist, outfile)
+for item in featurelist:
+    thefile.write("%s\n" % item)
