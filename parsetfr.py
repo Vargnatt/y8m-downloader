@@ -17,7 +17,7 @@ for files in os.listdir(path):
         for example in tf.python_io.tf_record_iterator(path + files):
             result = tf.train.Example.FromString(example)
             featurelist.append(result)
-dict_name = "records.json"
+dict_name = "records.txt"
 
 thefile = open(dict_name, 'w')
 # with open(dict_name, 'w') as outfile:
