@@ -29,7 +29,6 @@ for files in os.listdir(path):
         for example in tf.python_io.tf_record_iterator(path + files):
             result = tf.train.Example.FromString(example)
             dic = {}
-<<<<<<< HEAD
             if hasattr(result, 'context'):
                 dic["video_id"] = result.context.feature["video_id"].byte_list.value[0]
                 lst = []
@@ -46,14 +45,6 @@ for files in os.listdir(path):
                         int(result.features.feature["video_id"].int64_list.value[i]))
                 lst = filtLabel(lst)
                 dic["labels"] = lst
-=======
-            dic["video_id"] = result.features.feature["video_id"].bytes_list.value[0]
-            lst = []
-            for i in range(len(result.features.feature["labels"].int64_list.value)):
-                lst.append(
-                    int(result.features.feature["labels"].int64_list.value[i]))
-            dic["labels"] = lst
->>>>>>> refs/remotes/origin/master
             featurelist.append(dic)
 dict_name = "records.json"
 
