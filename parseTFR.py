@@ -1,7 +1,7 @@
 
 # pylint: disable = W0312, E0401, C0103, W0611
 
-import csv
+import json
 import os
 import tensorflow as tf
 
@@ -29,6 +29,7 @@ for files in os.listdir(path):
         for example in tf.python_io.tf_record_iterator(path + files):
             result = tf.train.Example.FromString(example)
             dic = {}
+<<<<<<< HEAD
             if hasattr(result, 'context'):
                 dic["video_id"] = result.context.feature["video_id"].byte_list.value[0]
                 lst = []
@@ -45,13 +46,22 @@ for files in os.listdir(path):
                         int(result.features.feature["video_id"].int64_list.value[i]))
                 lst = filtLabel(lst)
                 dic["labels"] = lst
+=======
+            dic["video_id"] = result.features.feature["video_id"].bytes_list.value[0]
+            lst = []
+            for i in range(len(result.features.feature["labels"].int64_list.value)):
+                lst.append(
+                    int(result.features.feature["labels"].int64_list.value[i]))
+            dic["labels"] = lst
+>>>>>>> refs/remotes/origin/master
             featurelist.append(dic)
-dict_name = "records.csv"
+dict_name = "records.json"
 
 # thefile = open(dict_name, 'wb')
 # with open(dict_name, 'w') as outfile:
 #     json.dump(featurelist, outfile)
 # f=open(dict_name,'w')
+# print(type(featurelist))
+# print(len(featurelist))
 with open(dict_name, 'w') as output:
-    writer = csv.writer(output)
-    writer.writerows(featurelist)
+    json.dump(featurelist,output)
