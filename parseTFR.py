@@ -7,8 +7,20 @@ import tensorflow as tf
 
 
 path = "downloader/"
+filist = []
 if 'path' in os.environ:
     path = os.environ['path']
+if 'filist' in os.environ:
+    filist = os.environ['filist']
+
+def filtLabel(d):
+    if not filter:
+        return d
+    else:
+        d = [x for x in d if x in filist]
+        return d
+
+
 filelist = []
 featurelist = []
 for files in os.listdir(path):
@@ -17,12 +29,22 @@ for files in os.listdir(path):
         for example in tf.python_io.tf_record_iterator(path + files):
             result = tf.train.Example.FromString(example)
             dic = {}
-            dic["video_id"] = result.features.feature["video_id"].byte_list.value[0]
-            lst = []
-            for i in range(len(result.features.feature["video_id"].int64_list.value)):
-                lst.append(
-                    int(result.features.feature["video_id"].int64_list.value[i]))
-            dic["labels"] = lst
+            if hasattr(result, 'context'):
+                dic["video_id"] = result.context.feature["video_id"].byte_list.value[0]
+                lst = []
+                for i in range(len(result.context.feature["video_id"].int64_list.value)):
+                    lst.append(
+                        int(result.context.feature["video_id"].int64_list.value[i]))
+                lst = filtLabel(lst)
+                dic["labels"] = lst
+            elif hasattr(result, 'features'):
+                dic["video_id"] = result.features.feature["video_id"].byte_list.value[0]
+                lst = []
+                for i in range(len(result.features.feature["video_id"].int64_list.value)):
+                    lst.append(
+                        int(result.features.feature["video_id"].int64_list.value[i]))
+                lst = filtLabel(lst)
+                dic["labels"] = lst
             featurelist.append(dic)
 dict_name = "records.csv"
 
