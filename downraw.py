@@ -60,10 +60,10 @@ with open('{}/ckpt', 'w') as ckf:
         f = open('{}/{}'.format(schedule_dir, files), 'r')
         lists = f.read().splitlines()
 
-# check point 
+# check point
         for e in lists[idx:-1]:
             # read and down
-            dl={}
+            dl = {}
             with youtube_dl.YoutubeDL(ydl_opts) as dl:
                 dl.download(['http://www.youtube.com/watch?v=BaW_jenozKc'])
             check_e += 1
