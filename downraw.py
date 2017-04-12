@@ -67,12 +67,6 @@ check_e = entry
 check_ch = chunk
 dl_opts = {
     'outtmpl': '%(id)s',
-    'format': 'bestaudio/best',
-    'postprocessors': [{
-        'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'mp3',
-        'preferredquality': '192',
-    }],
     'logger': MyLogger(),
     'progress_hooks': [my_hook],
 }
