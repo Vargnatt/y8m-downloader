@@ -5,8 +5,8 @@ import json
 import youtube_dl
 
 
-schedule_dir = "F:/workspace/y8m/dloader/tmp"
-listname = "F:/workspace/y8m/vallist.txt"
+schedule_dir = "/media/ydl/NewDisk/workspace/y8m/dst/schedule"
+listname = "/media/ydl/NewDisk/workspace/y8m/trainlist.txt"
 urlist = []
 
 
@@ -40,23 +40,24 @@ def my_hook(d):
 
 
 # split and create schedule if folder empty
-if os.listdir(schedule_dir) == "":
+#print(not os.listdir(schedule_dir))
+if not os.listdir(schedule_dir):
     with open(listname) as f:
         urls = f.read().splitlines()
     f.close()
     splt(urls)
-    sch = open('ckpt.csv', 'w')
+    sch = open('ckpt.json', 'w')
     sch.close()
 # read schedule and start from check point
 filelist = glob.glob('{}/*.txt'.format(schedule_dir))
-ckpt = glob.glob('{}/*.csv'.format(schedule_dir))[0]
+ckpt = glob.glob('{}/*.json'.format(schedule_dir))[0]
 
 
 if os.stat(ckpt).st_size == 0:
     chunk = 0
     entry = 0
 else:
-    with open('{}/ckpt', 'r') as jsf:
+    with open('{}/ckpt.json'.format(schedule_dir), 'r') as jsf:
         data = json.load(jsf)
         chunk = data['chunk']
         entry = data['entry']
@@ -66,28 +67,32 @@ dic = {}
 check_e = entry
 check_ch = chunk
 dl_opts = {
-    'outtmpl': '%(id)s',
+    'outtmpl': '/media/ydl/NewDisk/videos/%(id)s',
     'logger': MyLogger(),
     'progress_hooks': [my_hook],
+    'ignoreerrors':True
 }
-with open('{}/ckpt', 'w') as ckf:
-    for files in filelist[chunk:-1]:
-        if files == filelist[chunk]:
-            idx = entry
-            check_e = entry
-        else:
-            idx = 0
-            check_e = 0
-        dic['chunk'] = check_ch
-        dic['entry'] = check_e
-        f = open('{}/{}'.format(schedule_dir, files), 'r')
-        lists = f.read().splitlines()
+
+for files in filelist[chunk:-1]:
+    if files == filelist[chunk]:
+        idx = entry
+        check_e = entry
+    else:
+        idx = 0
+        check_e = 0
+    dic['chunk'] = check_ch
+    f = open(files, 'r')
+    lists = f.read().splitlines()
 
 # check point
-        for e in lists[idx:-1]:
-            # read and down
-            with youtube_dl.YoutubeDL(dl_opts) as dl:
-                dl.download([e])
-            check_e += 1
-            json.dump(dic, ckf)
-        check_ch += 1
+    for e in lists[idx:-1]:
+        # read and down
+        with youtube_dl.YoutubeDL(dl_opts) as dl:
+            code_no=dl.download([e])
+            print(code_no)
+        check_e += 1
+        dic['entry'] = check_e
+        ckf = open('{}/ckpt.json'.format(schedule_dir), 'w')
+        json.dump(dic, ckf)
+        ckf.close()
+    check_ch += 1
