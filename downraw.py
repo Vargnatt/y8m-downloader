@@ -85,12 +85,17 @@ with open('{}/ckpt', 'w') as ckf:
         f = open('{}/{}'.format(schedule_dir, files), 'r')
         lists = f.read().splitlines()
 
+# check point
         for e in lists[idx:-1]:
             # read and down
             with youtube_dl.YoutubeDL(dl_opts) as dl:
                 dl.download([e])
+            dl = {}
+            with youtube_dl.YoutubeDL(ydl_opts) as dl:
+                dl.download(['http://www.youtube.com/watch?v=BaW_jenozKc'])
             check_e += 1
             json.dump(dic, ckf)
 
         check_ch += 1
+
 
