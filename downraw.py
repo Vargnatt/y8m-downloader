@@ -9,6 +9,7 @@ schedule_dir = "F:/workspace/y8m/dloader/tmp"
 listname = "F:/workspace/y8m/vallist.txt"
 urlist = []
 
+
 class MyLogger(object):
     def debug(self, msg):
         pass
@@ -18,6 +19,7 @@ class MyLogger(object):
 
     def error(self, msg):
         print(msg)
+
 
 def splt(lst, s=3000):
     seq = 0
@@ -31,9 +33,11 @@ def splt(lst, s=3000):
                 dst.write('%s\n' % item)
         dst.close()
 
+
 def my_hook(d):
     if d['status'] == 'finished':
         print('Done downloading, now converting ...')
+
 
 # split and create schedule if folder empty
 if os.listdir(schedule_dir) == "":
@@ -62,7 +66,7 @@ dic = {}
 check_e = entry
 check_ch = chunk
 dl_opts = {
-    'outtmpl':'%(id)s',
+    'outtmpl': '%(id)s',
     'format': 'bestaudio/best',
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
@@ -89,10 +93,7 @@ with open('{}/ckpt', 'w') as ckf:
         for e in lists[idx:-1]:
             # read and down
             with youtube_dl.YoutubeDL(dl_opts) as dl:
-                dl.download(['http://www.youtube.com/watch?v=BaW_jenozKc'])
+                dl.download([e])
             check_e += 1
             json.dump(dic, ckf)
-
         check_ch += 1
-
-
