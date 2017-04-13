@@ -1,16 +1,44 @@
+
+# coding: utf-8
+
+# In[1]:
+
 # pylint: disable = W0312, E0401, C0103, W0611, E0401
 import glob
 import os
 import json
 import youtube_dl
+from youtube_dl.utils import *
+from cStringIO import StringIO
+import sys
 
+erf = open('errlist.json', 'r')
+errKeyWords = json.load(erf)
+erf.close()
 
 schedule_dir = "/media/ydl/NewDisk/workspace/y8m/dst/schedule"
 listname = "/media/ydl/NewDisk/workspace/y8m/trainlist.txt"
 urlist = []
 
 
+# In[2]:
+
+class Capturing(list):
+    def __enter__(self):
+        self._stdout = sys.stdout
+        sys.stdout = self._stringio = StringIO()
+        return self
+
+    def __exit__(self, *args):
+        self.extend(self._stringio.getvalue().splitlines())
+        del self._stringio
+        sys.stdout = self._stdout
+
+
 class MyLogger(object):
+    def __init__(self):
+        self.m = ''
+
     def debug(self, msg):
         pass
 
@@ -19,6 +47,10 @@ class MyLogger(object):
 
     def error(self, msg):
         print(msg)
+        self.m = msg
+
+    def getMessage(self):
+        return self.m
 
 
 def splt(lst, s=3000):
@@ -39,8 +71,27 @@ def my_hook(d):
         print('Done downloading, now converting ...')
 
 
-# split and create schedule if folder empty
-#print(not os.listdir(schedule_dir))
+# In[3]:
+
+def customdl(dler, url):
+    try:
+            # It also downloads the videos
+        res = dler.extract_info(
+            url, force_generic_extractor=dler.params.get('force_generic_extractor', False))
+    except UnavailableVideoError:
+        #         print('test point')
+        #         dler.report_error('unable to download video')
+        raise
+    except MaxDownloadsReached:
+        dler.to_screen('[info] Maximum number of downloaded files reached.')
+        raise
+    else:
+        if dler.params.get('dump_single_json', False):
+            dler.to_stdout(json.dumps(res))
+
+
+# In[4]:
+
 if not os.listdir(schedule_dir):
     with open(listname) as f:
         urls = f.read().splitlines()
@@ -66,12 +117,16 @@ else:
 dic = {}
 check_e = entry
 check_ch = chunk
+logger = MyLogger()
 dl_opts = {
     'outtmpl': '/media/ydl/NewDisk/videos/%(id)s',
-    'logger': MyLogger(),
+    'logger': logger,
     'progress_hooks': [my_hook],
-    'ignoreerrors':True
+    'ignoreerrors': True
 }
+
+
+# In[5]:
 
 for files in filelist[chunk:-1]:
     if files == filelist[chunk]:
@@ -83,16 +138,29 @@ for files in filelist[chunk:-1]:
     dic['chunk'] = check_ch
     f = open(files, 'r')
     lists = f.read().splitlines()
-
+    breakflag = True
 # check point
     for e in lists[idx:-1]:
         # read and down
+        #         with Capturing() as output:
+
         with youtube_dl.YoutubeDL(dl_opts) as dl:
-            code_no=dl.download([e])
-            print(code_no)
+            dl.download([e])
+#             customdl(dl,e)
+#             if len(output)>0 and output[-1].find('504'):
+#                 print('fuckyoutube')
+            msg = logger.getMessage()
+            if any(k in msg for k in errKeyWords):
+                print 'Network Down and Quit'
+                break
         check_e += 1
         dic['entry'] = check_e
         ckf = open('{}/ckpt.json'.format(schedule_dir), 'w')
         json.dump(dic, ckf)
         ckf.close()
-    check_ch += 1
+    else:
+        check_ch += 1
+    break
+
+
+# In[ ]:
