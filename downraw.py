@@ -125,7 +125,7 @@ dl_opts = {
     'ignoreerrors': True
 }
 
-
+failed = open('failed.txt', 'a')
 # In[5]:
 
 for files in filelist[chunk:-1]:
@@ -145,14 +145,16 @@ for files in filelist[chunk:-1]:
         #         with Capturing() as output:
 
         with youtube_dl.YoutubeDL(dl_opts) as dl:
-            dl.download([e])
+            code = dl.download([e])
 #             customdl(dl,e)
 #             if len(output)>0 and output[-1].find('504'):
 #                 print('fuckyoutube')
-            msg = logger.getMessage()
-            if any(k in msg for k in errKeyWords):
-                print 'Network Down and Quit'
-                break
+            if not code == 0:
+                msg = logger.getMessage()
+                failed.write(e + '\n')
+                if any(k in msg for k in errKeyWords):
+                    print('Network Down and Quit')
+                    break
         check_e += 1
         dic['entry'] = check_e
         ckf = open('{}/ckpt.json'.format(schedule_dir), 'w')
@@ -160,7 +162,10 @@ for files in filelist[chunk:-1]:
         ckf.close()
     else:
         check_ch += 1
+        continue
     break
+
+failed.close
 
 
 # In[ ]:
