@@ -6,11 +6,11 @@
 # pylint: disable = W0312, E0401, C0103, W0611, E0401
 import glob
 import os
+import sys
 import json
 import youtube_dl
 from youtube_dl.utils import *
 from cStringIO import StringIO
-import sys
 
 erf = open('errlist.json', 'r')
 errKeyWords = json.load(erf)
@@ -40,9 +40,11 @@ class MyLogger(object):
         self.m = ''
 
     def debug(self, msg):
+        self.m = ''
         pass
 
     def warning(self, msg):
+        self.m = ''
         pass
 
     def error(self, msg):
@@ -143,7 +145,6 @@ for files in filelist[chunk:-1]:
     for e in lists[idx:-1]:
         # read and down
         #         with Capturing() as output:
-
         with youtube_dl.YoutubeDL(dl_opts) as dl:
             code = dl.download([e])
 #             customdl(dl,e)
@@ -165,7 +166,5 @@ for files in filelist[chunk:-1]:
         continue
     break
 
-failed.close
+failed.close()
 
-
-# In[ ]:
