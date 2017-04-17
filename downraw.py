@@ -104,7 +104,7 @@ if not os.listdir(schedule_dir):
     sch.close()
 # read schedule and start from check point
 filelist = glob.glob('{}/*.txt'.format(schedule_dir))
-ckpt = glob.glob('{}/*.json'.format(schedule_dir))[0]
+ckpt = glob.glob('ckpt.json')[0]
 
 
 if os.stat(ckpt).st_size == 0:
