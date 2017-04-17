@@ -18,6 +18,7 @@ erf.close()
 
 schedule_dir = "/media/ydl/NewDisk/workspace/y8m/dst/schedule"
 listname = "/media/ydl/NewDisk/workspace/y8m/trainlist.txt"
+video_dir='/media/ydl/NewDisk/videos/'
 urlist = []
 
 
@@ -121,7 +122,7 @@ check_e = entry
 check_ch = chunk
 logger = MyLogger()
 dl_opts = {
-    'outtmpl': '/media/ydl/NewDisk/videos/%(id)s',
+    'outtmpl': video_dir+'%(id)s',
     'logger': logger,
     'progress_hooks': [my_hook],
     'ignoreerrors': True
