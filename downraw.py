@@ -55,7 +55,7 @@ class MyLogger(object):
         return self.m
 
 
-def splt(lst, s=3000):
+def splt(lst, s=1000):
     seq = 0
     for i in range(0, len(lst), s):
         tmp = lst[i:i + s]
@@ -127,7 +127,7 @@ dl_opts = {
     'ignoreerrors': True
 }
 
-failed = open('failed.txt', 'a')
+failed = open('failedlist.txt', 'a')
 # In[5]:
 
 for files in filelist[chunk:-1]:
