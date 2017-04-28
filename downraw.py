@@ -16,12 +16,12 @@ erf = open('errlist.json', 'r')
 errKeyWords = json.load(erf)
 erf.close()
 
-schedule_dir = "/media/ydl/NewDisk/workspace/y8m/dst/schedule"
-listname = "/media/ydl/NewDisk/workspace/y8m/trainlist.txt"
-video_dir='/media/ydl/NewDisk/videos/'
+schedule_dir = "./schedule"
+listname = "trainlist.txt"
+video_dir = './videos'
+
+
 urlist = []
-
-
 # In[2]:
 
 class Capturing(list):
@@ -49,7 +49,10 @@ class MyLogger(object):
         pass
 
     def error(self, msg):
-        print(msg)
+        if('country' in msg):
+            print('Restricted in region.')
+        else:
+            print(msg)
         self.m = msg
 
     def getMessage(self):
@@ -98,31 +101,37 @@ def customdl(dler, url):
 if not os.listdir(schedule_dir):
     with open(listname) as f:
         urls = f.read().splitlines()
-    f.close()
     splt(urls)
     sch = open('ckpt.json', 'w')
     sch.close()
+    print('Schedule Splited')
 # read schedule and start from check point
 filelist = glob.glob('{}/*.txt'.format(schedule_dir))
-ckpt = glob.glob('ckpt.json')[0]
+filelist.sort()
+ckpt = 'ckpt.json'
 
 
 if os.stat(ckpt).st_size == 0:
     chunk = 0
     entry = 0
+    print('Checkpoint initiated as startup.')
 else:
-    with open('{}/ckpt.json'.format(schedule_dir), 'r') as jsf:
+    with open(ckpt, 'r') as jsf:
         data = json.load(jsf)
         chunk = data['chunk']
         entry = data['entry']
-    jsf.close()
+        print('Checkpoint loaded as : chunk={},entry={}'.format(chunk, entry))
+
 
 dic = {}
 check_e = entry
 check_ch = chunk
 logger = MyLogger()
+# web-proxyhk.oa.com:8080
+# dev-proxy.oa.com:8080
 dl_opts = {
-    'outtmpl': video_dir+'%(id)s',
+    'outtmpl': video_dir + '/%(id)s',
+    'proxy':'web-proxyhk.oa.com:8080',
     'logger': logger,
     'progress_hooks': [my_hook],
     'ignoreerrors': True
@@ -131,7 +140,7 @@ dl_opts = {
 failed = open('failedlist.txt', 'a')
 # In[5]:
 
-for files in filelist[chunk:-1]:
+for files in filelist[chunk:]:
     if files == filelist[chunk]:
         idx = entry
         check_e = entry
@@ -143,23 +152,22 @@ for files in filelist[chunk:-1]:
     lists = f.read().splitlines()
     breakflag = True
 # check point
-    for e in lists[idx:-1]:
+    for e in lists[idx:]:
         # read and down
         #         with Capturing() as output:
+
         with youtube_dl.YoutubeDL(dl_opts) as dl:
+            print('Video ID: '+e)
             code = dl.download([e])
-#             customdl(dl,e)
-#             if len(output)>0 and output[-1].find('504'):
-#                 print('fuckyoutube')
             if not code == 0:
                 msg = logger.getMessage()
                 failed.write(e + '\n')
                 if any(k in msg for k in errKeyWords):
-                    print('Network Down and Quit')
+                    print('Quit with connection issue')
                     break
         check_e += 1
         dic['entry'] = check_e
-        ckf = open('{}/ckpt.json'.format(schedule_dir), 'w')
+        ckf = open(ckpt, 'w')
         json.dump(dic, ckf)
         ckf.close()
     else:
@@ -168,4 +176,3 @@ for files in filelist[chunk:-1]:
     break
 
 failed.close()
-
